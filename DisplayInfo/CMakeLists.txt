@@ -64,6 +64,28 @@ if (USE_DEVICESETTINGS)
         PRIVATE
             DeviceSettings/PlatformImplementation.cpp
             ../helpers/utils.cpp)
+
+    if (GRAPHICS_APIS_IMPLEMENTED_IN_DS_HAL)
+        add_definitions("-DGRAPHICS_APIS_IMPLEMENTED_IN_DS_HAL=1")
+    elseif(BUILD_BROADCOM)
+        target_sources(${MODULE_NAME}
+            PRIVATE
+                DeviceSettings/Broadcom/SoC_abstraction.cpp
+        )
+    elseif (BUILD_REALTEK)
+        target_sources(${MODULE_NAME}
+            PRIVATE
+                DeviceSettings/Realtek/SoC_abstraction.cpp
+                DeviceSettings/Realtek/kms.c
+        )
+    elseif (BUILD_AMLOGIC)
+        target_sources(${MODULE_NAME}
+            PRIVATE
+                DeviceSettings/Amlogic/SoC_abstraction.cpp
+                DeviceSettings/Amlogic/kms.c
+        )
+    endif ()
+
 elseif (NXCLIENT_FOUND AND NEXUS_FOUND)
     target_sources(${MODULE_NAME}
         PRIVATE
@@ -72,40 +94,8 @@ elseif (NXCLIENT_FOUND AND NEXUS_FOUND)
         PRIVATE
             NEXUS::NEXUS
             NXCLIENT::NXCLIENT)
-elseif (BCM_HOST_FOUND)
-    target_sources(${MODULE_NAME}
-        PRIVATE
-            RPI/PlatformImplementation.cpp)
-    target_link_libraries(${MODULE_NAME}
-        PRIVATE
-            BCM_HOST::BCM_HOST)
 else ()
     message(FATAL_ERROR "There is no graphic backend for display info plugin")
-endif ()
-
-if (BUILD_BROADCOM)
-    target_sources(${MODULE_NAME}
-        PRIVATE
-            DeviceSettings/Broadcom/SoC_abstraction.cpp
-    )
-elseif (BUILD_RASPBERRYPI)
-    target_sources(${MODULE_NAME}
-        PRIVATE
-	    #Dummy inclusion to prevent controller UI crash. This MUST be replaced with the proper implementation.
-            DeviceSettings/Broadcom/SoC_abstraction.cpp
-    )
-elseif (BUILD_REALTEK)
-    target_sources(${MODULE_NAME}
-        PRIVATE
-            DeviceSettings/Realtek/SoC_abstraction.cpp
-            DeviceSettings/Realtek/kms.c
-    )
-elseif (BUILD_AMLOGIC)
-    target_sources(${MODULE_NAME}
-        PRIVATE
-            DeviceSettings/Amlogic/SoC_abstraction.cpp
-            DeviceSettings/Amlogic/kms.c
-    )
 endif ()
 
 install(TARGETS ${MODULE_NAME}
